@@ -1,5 +1,5 @@
 import { NgZone, Injectable } from '@angular/core';
-import { ConnectableObservable, Observable, race, ReplaySubject, timer } from 'rxjs';
+import { ConnectableObservable, Observable, race, ReplaySubject, timer,tap } from 'rxjs';
 import { concatMap, first, publishReplay } from 'rxjs/operators';
 import { WebWorkerClient } from 'app/shared/web-worker';
 import { SearchResults } from 'app/search/interfaces';
@@ -31,6 +31,7 @@ export class SearchService {
           this.worker = WebWorkerClient.create(worker, this.zone);
           return this.worker.sendMessage<boolean>('load-index');
         }),
+        tap(()=>console.log(11111)),
         publishReplay(1),
       );
 

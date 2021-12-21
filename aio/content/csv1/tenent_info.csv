@@ -1,0 +1,4 @@
+name, type
+project_id, varchar
+project_name, varchar(23)
+count, integer

@@ -1,0 +1,7 @@
+DBName=oracle
+[postgres]
+varchar=String
+integer=Integer
+[oracle]
+VCHAR2=String
+number=Integer

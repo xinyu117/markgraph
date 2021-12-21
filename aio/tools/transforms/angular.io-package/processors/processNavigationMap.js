@@ -20,7 +20,7 @@ module.exports = function processNavigationMap(versionInfo, getPreviousMajorVers
         log.error(`Navigation doc: ${navigationDoc.fileInfo.relativePath} contains invalid urls`);
         // eslint-disable-next-line no-console
         console.log(errors);
-        throw new Error('processNavigationMap failed');
+    //    throw new Error('processNavigationMap failed');
       }
 
       function getArchiveUrl(v) {

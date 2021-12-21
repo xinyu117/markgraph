@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, Ou
 import { Title } from '@angular/platform-browser';
 
 import { asapScheduler, Observable, of, timer } from 'rxjs';
-import { catchError, observeOn, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, observeOn, switchMap, takeUntil, tap,repeat } from 'rxjs/operators';
 import { EMPTY_HTML, unwrapHtmlForSink } from 'safevalues';
 
 import { DocumentContents, FETCHING_ERROR_ID, FILE_NOT_FOUND_ID } from 'app/documents/document.service';

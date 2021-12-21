@@ -140,7 +140,7 @@ module.exports = new Package('angular-base', [
       }
     });
     checkAnchorLinksProcessor.pathVariants = ['', '/', '.html', '/index.html', '#top-of-page'];
-    checkAnchorLinksProcessor.errorOnUnmatchedLinks = true;
+    checkAnchorLinksProcessor.errorOnUnmatchedLinks = false;
   })
 
   .config(function(computePathsProcessor, generateKeywordsProcessor) {

@@ -10,9 +10,9 @@ const gitPackage = require('dgeni-packages/git');
 const apiPackage = require('../angular-api-package');
 const contentPackage = require('../angular-content-package');
 const errorsPackage = require('../angular-errors-package');
-const cliDocsPackage = require('../cli-docs-package');
+//const cliDocsPackage = require('../cli-docs-package');
 
-module.exports = new Package('angular.io', [gitPackage, apiPackage, contentPackage, cliDocsPackage, errorsPackage])
+module.exports = new Package('angular.io', [gitPackage, apiPackage, contentPackage, errorsPackage])
 
   // This processor relies upon the versionInfo. See below...
   .processor(require('./processors/processNavigationMap'))

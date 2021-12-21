@@ -51,7 +51,12 @@
     "payload-size": "scripts/payload.sh",
     "predocs": "node scripts/contributors/validate-data && yarn generate-stackblitz && yarn generate-zips",
     "docs": "yarn docs-only",
+"docs_debug": "yarn docs-only_debug",
     "docs-only": "node --max-old-space-size=2048 ./node_modules/.bin/dgeni ./tools/transforms/angular.io-package",
+"docs-only_debug": "dgeni_debug ./tools/transforms/angular.io-package",
+"docs-only2": "dgeni ./tools/transforms/angular.io-package",
+"csv-bean": "dgeni ./tools/transforms/csv-bean-package",
+"csv-bean_debug": "dgeni_debug ./tools/transforms/csv-bean-package",
     "docs-watch": "node tools/transforms/authors-package/watchr.js",
     "docs-lint": "eslint --ignore-path=\"tools/transforms/.eslintignore\" tools/transforms",
     "docs-test": "node tools/transforms/test.js",
@@ -103,6 +108,7 @@
     "rxjs": "~7.4.0",
     "safevalues": "^0.1.8",
     "tslib": "^2.3.0",
+    "webdriver-manager": "^12.1.8",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
