@@ -6,8 +6,8 @@ function mark(text) {
   marker.addIdForHeaders(doc);
   marker.markAndSwapAll(doc);
 
-  const ret = kMeans([[0, 0], [0, 2], [1, 3], [2, 0]], 3); // [0, 1, 1, 0]
-console.log(ret);
+ // const ret = kMeans([[0, 0], [0, 2], [1, 3], [2, 0]], 3); // [0, 1, 1, 0]
+///console.log(ret); //suchao
   return doc.toHtml();
 }
 
