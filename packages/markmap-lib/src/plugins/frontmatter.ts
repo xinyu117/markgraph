@@ -6,6 +6,7 @@ export const name = 'frontmatter';
 export function transform(transformHooks: ITransformHooks): IAssets {
   transformHooks.transform.tap((md, context) => {
     const origParse = md.parse;
+    // AOP: 在remarkable的parse执行前和后，分别执行before和after
     md.parse = wrapFunction(origParse, {
       before(ctx) {
         const [content] = ctx.args;

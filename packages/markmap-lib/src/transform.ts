@@ -66,11 +66,12 @@ export class Transformer {
   assetsMap: IAssetsMap;
 
   constructor(public plugins: ITransformPlugin[] = builtInPlugins) {
+    // parser:对md的rule进行设置, transform:对md.parse进行AOP, htmltag, retransform
     this.hooks = createTransformHooks();
 
     const assetsMap = {};
     for (const { name, transform } of plugins) {
-      assetsMap[name] = transform(this.hooks);
+      assetsMap[name] = transform(this.hooks); //生成用于设置remarkable参数的函数，返回的结果是第三方资源
     }
     this.assetsMap = assetsMap;
 
@@ -85,7 +86,7 @@ export class Transformer {
       },
     });
     this.md = md;
-    this.hooks.parser.call(md);
+    this.hooks.parser.call(md); //调用用于设置remarkable参数的函数（对md的rule进行设置）
   }
 
   buildTree(tokens: Remarkable.Token[]): INode {
@@ -169,11 +170,16 @@ export class Transformer {
     return root;
   }
 
+  /**
+   * markdown解析，模版数据填充入口
+   * @param content 从文件读取额内容
+   * @returns todo
+   */
   transform(content: string): ITransformResult {
     const context: ITransformContext = {
       features: {},
     };
-    this.hooks.transform.call(this.md, context);
+    this.hooks.transform.call(this.md, context); //调用用于设置remarkable参数的函数（对md.parse进行aop）
     const tokens = this.md.parse(content, {});
     let root = this.buildTree(tokens);
     cleanNode(root);

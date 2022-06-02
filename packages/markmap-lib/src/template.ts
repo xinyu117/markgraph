@@ -12,7 +12,7 @@ const template: string = process.env.TEMPLATE;
 
 const BASE_JS: JSItem[] = [
   './d3.js',
-    './packages/markmap-view/dist/index.js',
+  './packages/markmap-view/dist/index.js',
 ].map((src) => ({
   type: 'script',
   data: {

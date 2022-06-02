@@ -124,7 +124,7 @@ export class Markmap {
       this[key] = this[key].bind(this);
     });
     this.viewHooks = createViewHooks();
-    this.svg = (svg as ID3SVGElement).datum
+    this.svg = (svg as ID3SVGElement).datum //datum()会把值绑定在__data__属性上，所有元素的值都相同;data()会把数组对象对应赋值到元素上，如果数值不够则此元素的text为空
       ? (svg as ID3SVGElement)
       : d3.select(svg as string);
     this.styleNode = this.svg.append('style');
@@ -194,6 +194,11 @@ export class Markmap {
     this.renderData(d.data);
   }
 
+  /**
+   * 用根节点数据生成html dom
+   * 用生成的DOM计算出宽高（getBoundingClientRect）
+   * @param node 根节点
+   */
   initializeData(node: INode): void {
     let nodeId = 0;
     const { color, nodeMinHeight, maxWidth } = this.options;
@@ -207,6 +212,7 @@ export class Markmap {
     document.body.append(container, style);
     const groupStyle = maxWidth ? `max-width: ${maxWidth}px` : '';
     walkTree(node, (item, next) => {
+      //next(); 如果在此，就是后序遍历
       item.children = item.children?.map((child) => ({ ...child }));
       nodeId += 1;
       const group = mountDom(
@@ -215,13 +221,14 @@ export class Markmap {
         </div>
       );
       container.append(group);
+      //为节点设置state(本程序使用，不是d3必须使用的)
       item.state = {
         ...item.state,
         id: nodeId,
         el: group.firstChild as HTMLElement,
       };
       color(item); // preload colors
-      next();
+      next(); //先序遍历
     });
     const nodes = arrayFrom(container.childNodes).map(
       (group) => group.firstChild as HTMLElement
@@ -250,7 +257,7 @@ export class Markmap {
         item.content;
       next();
     });
-    container.remove();
+    container.remove(); //删除以上创建的DOM
     style.remove();
   }
 
@@ -273,18 +280,25 @@ export class Markmap {
     const { spacingHorizontal, paddingX, spacingVertical, autoFit, color } =
       this.options;
     const layout = flextree()
-      .children((d: INode) => !d.payload?.fold && d.children)
+      .children((d: INode) => !d.payload?.fold && d.children) //flextree中的children方法的参数没有定义类型，所以调用时可任意定义
+      //设置节点的的大小
       .nodeSize((d: IMarkmapFlexTreeItem) => {
         const [width, height] = d.data.state.size;
-        return [height, width + (width ? paddingX * 2 : 0) + spacingHorizontal];
+        return [height, width + (width ? paddingX * 2 : 0) + spacingHorizontal]; //正常树是从上到下，因为要变为从左到右
       })
+      //设置节点之间的空隙
       .spacing((a: IMarkmapFlexTreeItem, b: IMarkmapFlexTreeItem) => {
         return a.parent === b.parent ? spacingVertical : spacingVertical * 2;
       });
+    //将节点数据转成特定结构FlexNode，此hierarchy()的作用和d3的hierarchy()的作用不同,d3中会把树结构变成数组;
+    //调用flextree.hierarchy -> d3.hierarchy,hierarchy中会把传入的数据赋值给返回对象的data属性，子节点也有对应的data属性（tree.data = this.state.data）
     const tree = layout.hierarchy(this.state.data);
+    //计算节点的坐标
     layout(tree);
     adjustSpacing(tree, spacingHorizontal);
+    //descendants:是返回tree -> 叶子节点，之间的所有节点，是数组结构；node.ancestors:返回node和它下面节点，为树形结构
     const descendants: IMarkmapFlexTreeItem[] = tree.descendants().reverse();
+    //links():根据children/parent这种关系，返回source/target结构，一般用于绘制两者之间的线条：
     const links: IMarkmapLinkItem[] = tree.links();
     const linkShape = d3.linkHorizontal();
     const minX = d3.min(descendants, (d) => d.x - d.xSize / 2);
@@ -303,10 +317,11 @@ export class Markmap {
     const origin =
       (originData && descendants.find((item) => item.data === originData)) ||
       (tree as IMarkmapFlexTreeItem);
-    const x0 = origin.data.state.x0 ?? origin.x;
+    const x0 = origin.data.state.x0 ?? origin.x; //空值合并运算符在左侧的值是 null 或 undefined 时会返回问号右边的表达式;不同于 JavaScript 逻辑或（||）,空值合并运算符不会在左侧操作数为假值时返回右侧操作数
     const y0 = origin.data.state.y0 ?? origin.y;
 
     // Update the nodes
+    // 绘制<g>节点
     const node = this.g
       .selectAll<SVGGElement, IMarkmapFlexTreeItem>(
         childSelector<SVGGElement>('g')
@@ -318,13 +333,21 @@ export class Markmap {
       .attr('data-depth', (d) => d.data.depth)
       .attr('data-path', (d) => d.data.state.path)
       .attr(
-        'transform',
-        (d) =>
-          `translate(${y0 + origin.ySizeInner - d.ySizeInner},${
+        'transform', //设置起始时位置
+        (d) => {
+          console.log(
+            'y0 + origin.ySizeInner :' +
+              (y0 + origin.ySizeInner) +
+              ' d.ySizeInner :' +
+              d.ySizeInner
+          );
+          return `translate(${y0 + origin.ySizeInner - d.ySizeInner},${
             x0 + origin.xSize / 2 - d.xSize
-          })`
+          })`;
+        }
       );
 
+    //#region 对已经存在的接点进行处理
     const nodeExit = this.transition(node.exit<IMarkmapFlexTreeItem>());
     nodeExit
       .select('line')
@@ -340,26 +363,33 @@ export class Markmap {
           })`
       )
       .remove();
+    //#endregion
 
+    //#region 设置<g>节点
     const nodeMerge = node
       .merge(nodeEnter)
+      //设置节点的开合
       .attr('class', (d) =>
         ['markmap-node', d.data.payload?.fold && 'markmap-fold']
           .filter(Boolean)
           .join(' ')
       );
     this.transition(nodeMerge).attr(
-      'transform',
+      'transform', //设置各个点的位置，这样有个动画效果;attr是d3的一个function,这个function中使用了this,这样就可以使用他的调用者中的方法了
       (d) => `translate(${d.y},${d.x - d.xSize / 2})`
     );
+    //#endregion
 
     // Update lines under the content
+    // 画内容下的线（不是节点连接线）;
+    // selectAll返回： Selection{_group:array[nodeMerge的个数],_parents:每个nodeMerge对象}
     const line = nodeMerge
       .selectAll<SVGLineElement, IMarkmapFlexTreeItem>(
         childSelector<SVGLineElement>('line')
       )
       .data(
-        (d) => [d],
+        //data方法是d3的数据和DOM绑定的方法
+        (d) => [d], //父的_data_的值
         (d) => d.data.state.key
       )
       .join(
@@ -374,7 +404,7 @@ export class Markmap {
       );
     this.transition(line)
       .attr('x1', -1)
-      .attr('x2', (d) => d.ySizeInner + 2)
+      .attr('x2', (d) => d.ySizeInner + 2) //节点内的元素的坐标都是相对节点(<g>)的左上角
       .attr('y1', (d) => d.xSize)
       .attr('y2', (d) => d.xSize)
       .attr('stroke', (d) => color(d.data))
@@ -613,6 +643,13 @@ export class Markmap {
     });
   }
 
+  /**
+   * view入口
+   * @param svg DOM的id，Typescript包装的DOM对象, d3.Selection对象
+   * @param opts 可选项处理函数
+   * @param data 用remakable解析后的数据
+   * @returns Markmap的实例
+   */
   static create(
     svg: string | SVGElement | ID3SVGElement,
     opts?: Partial<IMarkmapOptions>,

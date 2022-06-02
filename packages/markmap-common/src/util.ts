@@ -11,24 +11,40 @@ export function noop(): void {
   // noop
 }
 
+/**
+ * 树遍历：深度优先，用递归实现先序遍历
+ * 树遍历: https://www.jianshu.com/p/5269d1cdfbf2
+ * @param tree 根节点
+ * @param callback 回调函数
+ * @param key 子的key
+ */
 export function walkTree<T>(
   tree: T,
   callback: (item: T, next: () => void, parent?: T) => void,
   key = 'children'
 ): void {
+  //生成第一个递归函数
   const walk = (item: T, parent?: T): void =>
     callback(
       item,
+      //给回调函数的第二个参数赋值（生成第二个函数）
       () => {
+        //console.log(item['content']);
         item[key]?.forEach((child: T) => {
           walk(child, item);
         });
       },
       parent
     );
+  //调用以上生成的第一个函数，这样第二个函数第一次运行时item就是tree了，一个闭包的应用。
   walk(tree);
 }
 
+/**
+ * 将类数组转换为数组
+ * @param arrayLike 类数组
+ * @returns 数组
+ */
 export function arrayFrom<T>(arrayLike: ArrayLike<T>): T[] {
   if (Array.from) return Array.from(arrayLike);
   const array = [];

@@ -26,6 +26,10 @@ export async function createMarkmap(
   if (options.open) open(output);
 }
 
+/**
+ * CLI入口
+ * @param version 版本
+ */
 export function main(version: string) {
   const program = new Command();
   program
