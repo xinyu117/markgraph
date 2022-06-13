@@ -137,14 +137,14 @@ export class Markmap {
         }
         return (!event.ctrlKey || event.type === 'wheel') && !event.button;
       })
-      .on('zoom', this.handleZoom);
+      .on('zoom', this.handleZoom); //zoom功能的实现：为最外层元素设置transform属性，属性的值是事件的值
     this.setOptions(opts);
     this.state = {
       id: this.options.id || this.svg.attr('id') || getId(),
     };
     this.g = this.svg.append('g');
     this.updateStyle();
-    this.svg.call(this.zoom).on('wheel', this.handlePan);
+    this.svg.call(this.zoom).on('wheel', this.handlePan); //为this.svg添加zoom功能
     this.revokers.push(
       refreshHook.tap(() => {
         this.setData();
@@ -209,7 +209,7 @@ export class Markmap {
     const style = mountDom(
       <style>{[this.getStyleContent(), containerCSS].join('\n')}</style>
     ) as HTMLElement;
-    document.body.append(container, style);
+    document.body.append(container, style); //document.append()的参数需要用documet.createElement去创建
     const groupStyle = maxWidth ? `max-width: ${maxWidth}px` : '';
     walkTree(node, (item, next) => {
       //next(); 如果在此，就是后序遍历
