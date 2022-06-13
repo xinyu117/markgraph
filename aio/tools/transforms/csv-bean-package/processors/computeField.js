@@ -2,6 +2,7 @@ module.exports = function computeField(toCamelCase, toPascalCase, tsvToJson, pro
 
   function createBeanProperty(item, fieldMapping) {
     const obj = {};
+    Object.assign(obj, item);
     obj.property = toCamelCase(item.name);
     const type = item.type;  // db define csv
     const key = Object.keys(fieldMapping).find(key => type.indexOf(key) > -1); //mapping csv
