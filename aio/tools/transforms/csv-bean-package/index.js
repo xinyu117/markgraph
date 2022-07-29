@@ -45,7 +45,8 @@ module.exports = new Package('csv-bean', [ testPackage, basePackage])
 
         // Standard patterns for matching docs to templates
         templateFinder.templatePatterns = [
-            'bean.template.java'
+          //  'bean.template.java', // Ebean用的DTO
+            'bean2.template.java'   // 标准Java Bean
         ];
 
         // Nunjucks and Angular conflict in their template bindings so change Nunjucks
